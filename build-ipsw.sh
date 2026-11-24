@@ -114,6 +114,23 @@ sudo find rootfs15 -iregex '.*n69.*' -type f -exec /bin/sh -c 'dirname="$(echo "
 sudo cp -av rootfs15/usr/share/firmware/wifi/* rootfs16/System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/Firmware
 hdiutil detach rootfs15
 rm -rf tmp1/098-68807-067.dmg
+
+# Replace only the poster provider override; preserve the SE's other jetsam limits.
+jetsam_dir="rootfs16/System/Library/LaunchDaemons"
+poster_provider_key='Version4.Extension.Override.com\.apple\.posterkit\.provider'
+poster_provider_limits=$(plutil -extract "$poster_provider_key" xml1 -expect dictionary -o - \
+    "$jetsam_dir/com.apple.jetsamproperties.D20.plist")
+for model in N69 N69u; do
+    sudo plutil -replace "$poster_provider_key" -xml "$poster_provider_limits" \
+        "$jetsam_dir/com.apple.jetsamproperties.$model.plist"
+done
+
+# Change the screen-class filter without renaming bundles or animation assets.
+wallpaper_dir="rootfs16/Library/Wallpaper/Collections"
+sudo plutil -replace logicalScreenClass -string '320w-568h@2x~iphone' \
+    "$wallpaper_dir/iOS_16~iphone.wallpaperCollection/Wallpapers/7400.WWDC_2022-375w-667h@2x~iphone.wallpaper/Wallpaper.plist" \
+    "$wallpaper_dir/Clownfish~iphone.wallpaperCollection/Wallpapers/7420.Clownfish-375w-667h@2x~iphone.wallpaper/Wallpaper.plist"
+
 ./bin/ldid -e rootfs16/System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN > work/ents.plist
 ./bin/wlanhax rootfs16/System/Library/DriverExtensions/com.apple.DriverKit-AppleBCMWLAN.dext/com.apple.DriverKit-AppleBCMWLAN work/dext.patch
 ./bin/ldid -Swork/ents.plist work/dext.patch
