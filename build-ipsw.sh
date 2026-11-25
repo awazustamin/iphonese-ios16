@@ -16,6 +16,10 @@ echo "iPhone SE 1 IPSW builder for iOS 16.1"
 
 # Bootstrap the tools used by this builder.
 setup_tools() (
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "python3 is required for the audio driver port (patchsrc/audioport). Install it, then re-run." >&2
+        exit 1
+    fi
     mkdir -p bin
     if [[ ! -x bin/iBootpatch2 ]]; then
         git clone https://github.com/crystall1nedev/ipad6-ipados18 -b ssv-patch
@@ -153,7 +157,8 @@ hdiutil attach tmp3/078-64825-107.dmg -mountpoint cryptexApp
 ./bin/img4 -i tmp1/kernelcache.release.iphone8b -o work/kernel-SE.raw
 ./bin/pmuhax work/kernel.raw work/kernel.patch
 ./bin/kextport work/kernel.patch work/kernel-SE.raw work/kernel.patch2
-./bin/mthax work/kernel.patch2 work/kernel.patch3
+python3 patchsrc/audioport.py work/kernel.patch2 work/kernel-SE.raw work/kernel.patch2a
+./bin/mthax work/kernel.patch2a work/kernel.patch3
 ./bin/Kernel64Patcher work/kernel.patch3 work/kernel.patch4 -e -h
 ./bin/KPlooshFinder work/kernel.patch4 work/kernel.patch5
 ./bin/kerneldiff2 work/kernel.raw work/kernel.patch4 work/kernel.diff

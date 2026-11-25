@@ -11,6 +11,8 @@ A Mac/Hackintosh on a modern macOS version (preferably, macOS 14 and up).
 
 At least 40-50GB of free space.
 
+`python3` (used by the audio driver port, the one shipped with macOS / Xcode Command Line Tools is fine).
+
 Common sense
 
 # IPSWs needed
@@ -34,8 +36,10 @@ Assuming all IPSWs are present, here is the usage!
 # What works
 
 - Baseband (cellular functionality is NOT fully tested, as my SE 1 is carrier locked to AT&T)
+- Wallpaper (thanks to [awazustamin](https://github.com/awazustamin) for [the PR!](https://github.com/pwnerblu/iphonese-ios16/pull/2))
 - Flashlight
 - Bluetooth
+- Device audio (speaker)
 - Wi-Fi
 - Apple services
 - SEP
@@ -43,10 +47,8 @@ Assuming all IPSWs are present, here is the usage!
 
 # What does not work
 
-- Device Audio (Audio on Bluetooth works)
 - Camera
 - Jailbreaking
-- Wallpaper
 - Other things I have not tested. They may have issues.
 
 This is an incomplete project, and still has issues. Do not try this on a main device. Proof Of Concept.
