@@ -178,6 +178,23 @@ hdiutil detach cryptexApp
 # Now, copy the H6ISP and fix Graphics.
 sudo cp -av rootfs16ipad/System/Library/PrivateFrameworks/H6ISPServices.framework rootfs16/System/Library/PrivateFrameworks
 sudo cp -av rootfs16ipad/System/Library/Extensions/AGXMetalA9.bundle rootfs16/System/Library/Extensions
+
+for model in N69 N69u; do
+    camera_config="rootfs16/System/Library/PrivateFrameworks/CMCapture.framework/$model"
+    camera_setup="$camera_config/CameraSetup.plist"
+    vis_config=TuningParameters.Common.VideoStabilization
+
+    sudo plutil -replace AVCaptureDevices.0.stillImageNoiseReductionAndFusionScheme \
+        -integer 1 "$camera_config/AVCaptureSession.plist" || exit 1
+
+    for key in TuningParameters.Common "$vis_config"; do
+        if ! plutil -extract "$key" raw -expect dictionary -o /dev/null "$camera_setup" >/dev/null 2>&1; then
+            sudo plutil -insert "$key" -dictionary "$camera_setup" || exit 1
+        fi
+    done
+    sudo plutil -replace "$vis_config.Version" -integer 2 "$camera_setup" || exit 1
+done
+
 hdiutil detach rootfs16ipad
 rm -rf tmp2
 rm -rf tmp3/078-65701-105.dmg
